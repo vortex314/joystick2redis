@@ -1,0 +1,9 @@
+{
+    "redis": {
+        "host": "localhost",
+        "port": 6379
+    },
+    "joystick": {
+        "device": "/dev/input/js0"
+    }
+}
