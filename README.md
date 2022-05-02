@@ -53,7 +53,7 @@ git pull
 ```
 ### Run it
 ```
-./Debug/joystick2redis
+./build/joystick2redis -f joystick2redis.json
 ```
 # Config
 8C:41:F2:D2:E5:48  PS4 Host
