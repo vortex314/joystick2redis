@@ -1,17 +1,17 @@
 # Cheap PS4 console to MQTT
 ## Architecture
-![Architecture](doc/architecture.png)
+![Architecture](doc/redisBrain.png)
 ## Purpose
 Ever wanted an easy way to control your IOT devices, this is an easy way forward !
-Just buy one of these dirt cheap PS4 wireless controller clones and link it to your project via joystick2mqtt. 
-![Architecture](doc/joystick2mqtt.png)
+Just buy one of these dirt cheap PS4 wireless controller clones and link it to your project via joystick2redis. 
+![Architecture](doc/joystick2redis.png)
 ### Scala code
 As I wanted a readable way to do the wiring between the sensors 
 and the actuators, I developed a small Scala and C++ framework. 
 C++ runs on the IoT device, the scala part runs on the Raspberry Pi.
 The code and behaviour is similar and reads as a flow of events left to right. 
 [tinyAkka Scala ](https://github.com/vortex314/tinyAkka) ,
-[nanoAkka  C++](https://github.com/vortex314/nanoAkka)
+[limero  C++](https://github.com/vortex314/limero)
 Ultimate goal is that there is no need of a remote controller, and the fully automated version will be controlled in Scala. 
 ```
 mqtt.from("src/pi3/js0/axis0") >> scale(-32767,+32767,-90,90) >> mqtt.to("dst/robot/steer/angle") 
@@ -21,9 +21,7 @@ mqtt.from("src/pi3/js0/alive") >> negate >> mqtt.to("dst/robot/freeze")
 
 ### Controls on joystick
 ![Architecture](doc/controls.png)
-### Mqtt spy with 2 controllers - 1 Bluetooth, 1 USB
-![Architecture](doc/mqtt-spy.png)
-### Naming convention in MQTT topics
+### Naming convention in REDIS channels
 ```
 src/<host>/<joystick_device>/buttonx => 0 or 1
 src/<host>/<joystick_device>/axisx  => -32767 => 32767
@@ -35,17 +33,23 @@ Install Bluetooth  dongle or use inbuild raspberry pi
 sudo apt-get install bluez libbluetooth-dev
 ### Build software 
 ``` 
-git clone https://github.com/vortex314/joystick2mqtt
-git clone https://github.com/vortex314/Common
-git clone https://github.com/eclipse/paho.mqtt.c
-cd Common
-make -f Common.mk
-cd ../paho.mqtt.c
-cp ../joystick2mqtt/makePaho.sh
-./makePaho.sh
-cd ../joystick2mqtt
-cp makePaho.sh ../paho.mqtt.c
-make -f joystick2mqtt.mk 
+git clone --recursive https://github.com/vortex314/joystick2redis.git
+cd joystick2redis
+cd hiredis
+make 
+cd ..
+mkdir build
+cd build
+cmake ..
+make 
+
+git submodule update --init --recursive
+git pull --recurse-submodules
+
+git pull && git submodule init && git submodule update && git submodule status
+git checkout main
+git pull
+
 ```
 ### Run it
 ```

@@ -14,6 +14,7 @@ bool Joystick::config(JsonObject &config) {
   _device = config["device"] | "/dev/input/js0";
   return true;
 }
+/*
 typedef enum { ET_RXD, ET_TXD, ET_ERROR, ET_TIMEOUT, ET_FAIL } EventType;
 
 EventType pollFd(int fd, uint32_t timeout) {
@@ -49,7 +50,7 @@ EventType pollFd(int fd, uint32_t timeout) {
   DEBUG(" timeout %llu", Sys::millis());
   return ET_TIMEOUT;
 }
-
+*/
 bool Joystick::init() {
   deviceLookupTimer >> [&](const TimerMsg &tm) {
     if (exists() && connected()) return;
