@@ -20,7 +20,6 @@ add_executable(joystick2redis)
 target_sources(joystick2redis PRIVATE 
     src/joystick2redis.cpp 
     src/Joystick.cpp 
-    src/LogFile.cpp
     src/config.cpp
     ${LIMERO}/src/StringUtility.cpp
     ${LIMERO}/src/printf.c
