@@ -48,7 +48,7 @@ include_directories(src
 
 target_link_libraries(joystick2redis 
         -lpthread 
-        -L../hiredis -lhiredis
+        -L../hiredis -l:libhiredis.a
         -lrt 
         -pthread 
         -latomic )
