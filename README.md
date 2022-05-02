@@ -1,4 +1,4 @@
-# Cheap PS4 console to MQTT
+# Cheap PS4 console to REDIS
 ## Architecture
 ![Architecture](doc/redisBrain.png)
 ## Purpose
@@ -14,9 +14,9 @@ The code and behaviour is similar and reads as a flow of events left to right.
 [limero  C++](https://github.com/vortex314/limero)
 Ultimate goal is that there is no need of a remote controller, and the fully automated version will be controlled in Scala. 
 ```
-mqtt.from("src/pi3/js0/axis0") >> scale(-32767,+32767,-90,90) >> mqtt.to("dst/robot/steer/angle") 
-mqtt.from("src/pi3/js0/axis1") >> scale(-32767,+32767,-4,+4) >> mqtt.to("dst/robot/drive/speed")
-mqtt.from("src/pi3/js0/alive") >> negate >> mqtt.to("dst/robot/freeze")
+redis.from("src/pi3/js0/axis0") >> scale(-32767,+32767,-90,90) >> redis.to("dst/robot/steer/angle") 
+redis.from("src/pi3/js0/axis1") >> scale(-32767,+32767,-4,+4) >> redis.to("dst/robot/drive/speed")
+redis.from("src/pi3/js0/alive") >> negate >> redis.to("dst/robot/freeze")
 ```
 
 ### Controls on joystick
@@ -53,7 +53,7 @@ git pull
 ```
 ### Run it
 ```
-./Debug/joystick2mqtt
+./Debug/joystick2redis
 ```
 # Config
 8C:41:F2:D2:E5:48  PS4 Host
