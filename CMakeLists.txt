@@ -12,7 +12,6 @@ add_definitions(-DLINUX -std=c++11)
 
 set(LIMERO limero)
 set(HIREDIS hiredis )
-set(JSON ../json)
 
 
 
@@ -45,12 +44,11 @@ include_directories(src
         ArduinoJson/src 
         ../paho.mqtt.c/src  
         ${HIREDIS}
-        ${JSON}/single_include
         )
 
 target_link_libraries(joystick2redis 
         -lpthread 
-        -L ../../hiredis/ -lhiredis
+        -L../hiredis -lhiredis
         -lrt 
         -pthread 
         -latomic )
