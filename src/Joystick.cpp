@@ -14,43 +14,7 @@ bool Joystick::config(JsonObject &config) {
   _device = config["device"] | "/dev/input/js0";
   return true;
 }
-/*
-typedef enum { ET_RXD, ET_TXD, ET_ERROR, ET_TIMEOUT, ET_FAIL } EventType;
 
-EventType pollFd(int fd, uint32_t timeout) {
-  fd_set rfds;
-  fd_set wfds;
-  fd_set efds;
-  struct timeval tv;
-  int rc;
-  // Wait up to 1000 msec.
-  uint64_t delta = timeout;
-  tv.tv_sec = timeout / 1000;
-  tv.tv_usec = (delta * 1000) % 1000000;
-
-  FD_ZERO(&rfds);
-  FD_ZERO(&wfds);
-  FD_ZERO(&efds);
-  FD_SET(fd, &rfds);
-  FD_SET(fd, &efds);
-  int maxFd = fd + 1;
-
-  rc = select(maxFd, &rfds, NULL, &efds, &tv);
-  if (rc < 0) {
-    WARN(" select() : error : %s (%d)", strerror(errno), errno);
-    return ET_FAIL;
-  } else if (rc > 0) {  // one of the fd was set
-    if (FD_ISSET(fd, &rfds)) {
-      return ET_RXD;
-    } else if (FD_ISSET(fd, &efds)) {
-      WARN("device  error : %s (%d)", strerror(errno), errno);
-      return ET_ERROR;
-    }
-  }
-  DEBUG(" timeout %llu", Sys::millis());
-  return ET_TIMEOUT;
-}
-*/
 bool Joystick::init() {
   deviceLookupTimer >> [&](const TimerMsg &tm) {
     if (exists() && connected()) return;
@@ -62,34 +26,7 @@ bool Joystick::init() {
       INFO(" waiting for device %s", _device.c_str());
     }
   };
-  /*
-  devicePollTimer >> [&](const TimerMsg &tm) {
-    if (connected()) {
-      EventType et;
-      while (true) {
-        et = pollFd(_fd, 10);
-        switch (et) {
-          case ET_RXD: {
-            emitEvent();
-            break;
-          }
-          case ET_TIMEOUT: {
-            return;
-          }
-          case ET_FAIL: {
-            ERROR("select fail '%s' errno : %d : %s ", _device.c_str(), errno,
-                  strerror(errno));
-            return;
-          }
-          case ET_ERROR: {
-            ERROR("select error '%s' errno : %d : %s ", _device.c_str(), errno,
-                  strerror(errno));
-            return;
-          }
-        }
-      }
-    }
-  };*/
+
   return true;
 }
 
@@ -144,29 +81,13 @@ int Joystick::connect() {
   INFO("Driver version is %d.%d.%d.", version >> 16, (version >> 8) & 0xff,
        version & 0xff);
   INFO("Axes : %d Buttons : %d ", axes, buttons);
-  // signal handling
-  /*
-    struct sigaction sa;
-    sa.sa_sigaction = signal_handler;
-    sa.sa_flags = SA_RESTART;
-    sigemptyset(&sa.sa_mask);
-
-    if (sigaction(SIGIO, &sa, NULL))
-      ERROR("sigaction failed ");
-
-    raise(SIGIO);
-
-    if (fcntl(_fd, F_SETOWN, getpid()) == -1)
-      ERROR("fnctl to set F_SETOWN failed");
-
-    if (fcntl(_fd, F_SETFL, O_ASYNC) < 0)
-      ERROR("failed to set async signal %d : %s ", errno, strerror(errno));
-
-    if (fcntl(_fd, F_SETSIG, SIGIO) < 0)
-      ERROR("failed to set setsig signal %d : %s ", errno, strerror(errno));
-  */
   _connected = true;
   thread().addReadInvoker(_fd, this, onReadFd);
+  thread().addErrorInvoker(_fd, this, [](void *pv) {
+    Joystick *joystick = (Joystick *)pv;
+    joystick->_connected = false;
+    INFO("Disconnected from '%s' ", joystick->_device.c_str());
+  });
   INFO("connected ");
   return 0;
 }

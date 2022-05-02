@@ -13,19 +13,16 @@ std::string loadFile(const char *name);
 bool loadConfig(JsonObject cfg, int argc, char **argv);
 
 int main(int argc, char **argv) {
-  INFO("Loading configuration.");
+  INFO("Start %s", argv[0]);
   DynamicJsonDocument config(10240);
   loadConfig(config.to<JsonObject>(), argc, argv);
   Thread workerThread("worker");
   Joystick joystick(workerThread);  // blocking thread
   Redis redis(workerThread, config["redis"].as<JsonObject>());
-  redis.connect();
-
-  std::string dstPrefix = "dst/joystick/";
-  std::string srcPrefix = "src/joystick/";
 
   JsonObject joystickConfig = config["joystick"];
-
+  std::string srcPrefix = config["redis"]["topic"] | "src/joystick/";
+  redis.connect();
   joystick.config(joystickConfig);
   joystick.init();
   joystick.connect();
@@ -36,14 +33,14 @@ int main(int argc, char **argv) {
     redis.publish(topic, message);
   };
 
-  joystick.buttonEvent >> [srcPrefix, &redis](const ButtonEvent &ae) {
-    std::string topic = srcPrefix + "button/" + std::to_string(ae.button);
-    std::string message = std::to_string(ae.value);
+  joystick.buttonEvent >> [srcPrefix, &redis](const ButtonEvent &be) {
+    std::string topic = srcPrefix + "button/" + std::to_string(be.button);
+    std::string message = std::to_string(be.value);
     redis.publish(topic, message);
   };
 
   redis.response() >> [&](const Json &) {
-
+//ignore responses from redis
   };
   workerThread.run();
 }
