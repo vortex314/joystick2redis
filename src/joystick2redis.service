@@ -1,0 +1,17 @@
+; deployment config
+; please adapt for your environment the ExecStart and Workingdirectory
+[Unit]
+Description=Wiring joystick to redis 
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=root
+Group=root
+ExecStart=/home/lieven/workspace/joystick2redis/build/joystick2redis -f joystick2redis.json
+WorkingDirectory=/home/lieven/workspace/joystick2redis/src
+
+[Install]
+WantedBy=multi-user.target

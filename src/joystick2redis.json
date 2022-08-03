@@ -1,0 +1,16 @@
+{
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "topic": "src/joystick/",
+    "reconnectOnConnectionLoss": true
+  },
+  "joystick": {
+    "device": "/dev/input/js0"
+  },
+  "log": {
+    "prefix": "/home/lieven/log/joystick2redis_",
+    "count": 10,
+    "limit": 1048576
+  }
+}
